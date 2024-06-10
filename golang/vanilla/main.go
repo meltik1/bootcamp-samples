@@ -3,16 +3,10 @@ package main
 import (
     "flag"
     "fmt"
-//    "crypto/md5"
     "net/http"
-//    "os"
     "runtime"
-//    "strconv"
-//    "syscall"
-//    "time"
-//    "encoding/json"
-
     "github.com/devhands-io/bootcamp-samples/golang/vanilla/handlers"
+    "github.com/devhands-io/bootcamp-samples/golang/vanilla/payload"
 )
 
 var (
@@ -34,15 +28,15 @@ func main() {
 
     flag.Parse()
 
+    // dummy handlers
     http.HandleFunc("/", handlers.Ok)
     http.HandleFunc("/hello", handlers.Hello)
 
-/*
-    // sleeps
-    cpuSleep := NewGetrusagePayload()
-    ioSleep := NewIOPayload()
-    http.HandleFunc("/payload", SleepHandler(cpuSleep, ioSleep))
-*/
+    // payload
+    cpuSleep := payload.NewGetrusagePayload()
+    ioSleep := payload.NewIOPayload()
+    http.HandleFunc("/payload", handlers.SleepHandler(cpuSleep, ioSleep))
+
     addr := fmt.Sprintf("%s:%d", host, port)
     fmt.Println("serving at " + addr)
     http.ListenAndServe(addr, nil)

@@ -1,4 +1,8 @@
 to biuld: go build -o srv main.go
 
-usage:
+start server:
 ./srv --port=8088
+
+load with wrk:
+./wrk -t4 -c256 -R30000 -d60s -L http://localhost:8000/hello > ~/res.txt
+./wrk -t4 -c256 -R400 -d60s -L http://localhost:8000/payload?cpu_msec=10 > ~/res.txt

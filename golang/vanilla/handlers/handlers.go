@@ -3,8 +3,8 @@ package handlers
 import (
     "encoding/json"
     "net/http"
-	"strconv"
-	"time"
+    "strconv"
+    "time"
 )
 
 const (
@@ -21,7 +21,7 @@ type TimingResponse struct {
 }
 
 type SleepPayload interface {
-	Sleep(msec float64) (uint, error)
+    Sleep(msec float64) (uint, error)
 }
 
 func JSONError(w http.ResponseWriter, err interface{}, code int) {
@@ -36,61 +36,61 @@ func writeJSONResponse(w http.ResponseWriter, data interface{}, code int) {
     w.Header().Set("Content-Type", "application/json; charset=utf-8")
     w.Header().Set("X-Content-Type-Options", "nosniff")
     w.WriteHeader(code)
-	json.NewEncoder(w).Encode(data)
+    json.NewEncoder(w).Encode(data)
 }
 
 func Ok(w http.ResponseWriter, r *http.Request) {
-	JSONResponse(w, MessageResponse{"ok"})
+    JSONResponse(w, MessageResponse{"ok"})
 }
 
 func Hello(w http.ResponseWriter, r *http.Request) {
-	JSONResponse(w, MessageResponse{"Hello, world!"})
+    JSONResponse(w, MessageResponse{"Hello, world!"})
 }
 
 func SleepHandler(cpuPayload SleepPayload, ioPayload SleepPayload) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		var totalCycles uint
+    return func(w http.ResponseWriter, r *http.Request) {
+        start := time.Now()
+        var totalCycles uint
 
-		// cpu sleep
-		if cpuMsecStr := r.URL.Query().Get("cpu_msec"); cpuMsecStr != "" {
-			msec, err := strconv.ParseFloat(cpuMsecStr, 32)
-			if err != nil {
-				JSONError(w, err, http.StatusBadRequest)
-				return
-			}
+        // cpu sleep
+        if cpuMsecStr := r.URL.Query().Get("cpu_msec"); cpuMsecStr != "" {
+            msec, err := strconv.ParseFloat(cpuMsecStr, 32)
+            if err != nil {
+                JSONError(w, err, http.StatusBadRequest)
+                return
+            }
 
-			cycles, err := cpuPayload.Sleep(msec)
-			if err != nil {
-				//zap.L().Error("cpu sleep error", zap.Error(err))
-				JSONError(w, err, http.StatusInternalServerError)
-				return
-			}
-			totalCycles += cycles
-		}
+            cycles, err := cpuPayload.Sleep(msec)
+            if err != nil {
+                //zap.L().Error("cpu sleep error", zap.Error(err))
+                JSONError(w, err, http.StatusInternalServerError)
+                return
+            }
+            totalCycles += cycles
+        }
 
-		// io sleep
-		if ioMsecStr := r.URL.Query().Get("io_msec"); ioMsecStr != "" {
-			msec, err := strconv.ParseFloat(ioMsecStr, 32)
-			if err != nil {
-				JSONError(w, err, http.StatusBadRequest)
-				return
-			}
+        // io sleep
+        if ioMsecStr := r.URL.Query().Get("io_msec"); ioMsecStr != "" {
+            msec, err := strconv.ParseFloat(ioMsecStr, 32)
+            if err != nil {
+                JSONError(w, err, http.StatusBadRequest)
+                return
+            }
 
-			cycles, err := ioPayload.Sleep(msec)
-			if err != nil {
-				//zap.L().Error("io sleep error", zap.Error(err))
-				JSONError(w, err, http.StatusInternalServerError)
-				return
-			}
-			totalCycles += cycles
-		}
+            cycles, err := ioPayload.Sleep(msec)
+            if err != nil {
+                //zap.L().Error("io sleep error", zap.Error(err))
+                JSONError(w, err, http.StatusInternalServerError)
+                return
+            }
+            totalCycles += cycles
+        }
 
-		end := time.Now()
+        end := time.Now()
 
-		JSONResponse(w, TimingResponse{
-			WallTimeMSec: float64(end.Sub(start).Nanoseconds()) / nanosecToMillisec,
-			TotalCycles:  totalCycles,
-		})
-	}
+        JSONResponse(w, TimingResponse{
+            WallTimeMSec: float64(end.Sub(start).Nanoseconds()) / nanosecToMillisec,
+            TotalCycles:  totalCycles,
+        })
+    }
 }

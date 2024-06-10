@@ -1,14 +1,14 @@
 package payload
 
 import (
-    "fmt"
+//    "fmt"
     "os"
     "runtime"
     "syscall"
 )
 
 const (
-    bufSize = 64 * 1024 // 64 kb
+    bufSize = 16 * 1024 // 16K
 )
 
 type getrusagePayload struct {
@@ -25,7 +25,7 @@ func NewGetrusagePayload() getrusagePayload {
     data := make([]byte, bufSize)
     file.Read(data)
 
-    fmt.Println(data)
+    //fmt.Println(data)
 
     return getrusagePayload{
         data: data,

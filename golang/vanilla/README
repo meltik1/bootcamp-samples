@@ -1,0 +1,4 @@
+to biuld: go build -o srv main.go
+
+usage:
+./srv --port=8088

@@ -1,4 +1,5 @@
-to biuld: go build -o srv main.go
+build:
+go build -o srv main.go
 
 start server:
 ./srv --port=8088

@@ -1,73 +1,73 @@
 package payload
 
 import (
-//    "fmt"
-    "os"
-    "runtime"
-    "syscall"
+	//    "fmt"
+	"os"
+	"runtime"
+	"syscall"
 )
 
 const (
-    bufSize = 16 * 1024 // 16K
+	bufSize = 16 * 1024 // 16K
 )
 
 type getrusagePayload struct {
-    data []byte
+	data []byte
 }
 
 func NewGetrusagePayload() getrusagePayload {
-    file, err := os.Open("/dev/urandom")
-    if err != nil {
-        panic(err)
-    }
-    defer file.Close()
+	file, err := os.Open("/dev/urandom")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
 
-    data := make([]byte, bufSize)
-    file.Read(data)
+	data := make([]byte, bufSize)
+	file.Read(data)
 
-    //fmt.Println(data)
+	//fmt.Println(data)
 
-    return getrusagePayload{
-        data: data,
-    }
+	return getrusagePayload{
+		data: data,
+	}
 }
 
 func elapsedUsageMsec(startUsage syscall.Rusage) (float64, error) {
-    usage := syscall.Rusage{}
-    if err := syscall.Getrusage(syscall.RUSAGE_THREAD, &usage); err != nil {
-        //zap.L().Error("getrusage error", zap.Error(err))
-        return 0, err
-    }
+	usage := syscall.Rusage{}
+	if err := syscall.Getrusage(syscall.SYS_GETRUSAGE, &usage); err != nil {
+		//zap.L().Error("getrusage error", zap.Error(err))
+		return 0, err
+	}
 
-    elapsed := float64(usage.Utime.Nano()) - float64(startUsage.Utime.Nano()) +
-        float64(usage.Stime.Nano()) - float64(startUsage.Stime.Nano())
-    elapsed /= nanosecToMillisec
+	elapsed := float64(usage.Utime.Nano()) - float64(startUsage.Utime.Nano()) +
+		float64(usage.Stime.Nano()) - float64(startUsage.Stime.Nano())
+	elapsed /= nanosecToMillisec
 
-    return elapsed, nil
+	return elapsed, nil
 }
 
 func (p getrusagePayload) Sleep(msec float64) (uint, error) {
-    runtime.LockOSThread()
-    defer runtime.UnlockOSThread()
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
 
-    var elapsedMsec float64
-    var cycles uint
+	var elapsedMsec float64
+	var cycles uint
 
-    startUsage := syscall.Rusage{}
-    if err := syscall.Getrusage(syscall.RUSAGE_THREAD, &startUsage); err != nil {
-        //zap.L().Error("getrusage error", zap.Error(err))
-        return 0, err
-    }
+	startUsage := syscall.Rusage{}
+	if err := syscall.Getrusage(syscall.SYS_GETRUSAGE, &startUsage); err != nil {
+		//zap.L().Error("getrusage error", zap.Error(err))
+		return 0, err
+	}
 
-    var err error
-    for elapsedMsec < msec {
-        md5Work(p.data)
+	var err error
+	for elapsedMsec < msec {
+		md5Work(p.data)
 
-        cycles++
-        if elapsedMsec, err = elapsedUsageMsec(startUsage); err != nil {
-            return 0, err
-        }
-    }
+		cycles++
+		if elapsedMsec, err = elapsedUsageMsec(startUsage); err != nil {
+			return 0, err
+		}
+	}
 
-    return cycles, nil
+	return cycles, nil
 }

@@ -1,0 +1,27 @@
+name = "bootcamp"
+description = "Для бут�кема"
+kind = "sandbox"
+replicas = 1
+
+[engine]
+name = "golang"
+version = "1.22"
+size = "small"
+
+[envs.prod]
+replicas = 1
+
+[[dependencies]]
+name = "wordcounter"
+
+[postgresql]
+enabled = true
+version = "15"
+size = "medium"
+
+
+[redis]
+enabled = true
+version = "6.2"
+size = "small"
+type = "cache"

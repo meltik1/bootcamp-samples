@@ -6,8 +6,6 @@ import (
 	"math/rand"
 
 	"github.com/jackc/pgx/v5"
-
-	"github.com/devhands-io/bootcamp-samples/golang/vanilla/models"
 )
 
 type DB struct {
@@ -19,15 +17,15 @@ func New(connect *pgx.Conn) DB {
 }
 
 func (d DB) Request(ctx context.Context, count int) {
-	var u models.User
+	var u string
 	for i := 0; i < count; i++ {
 		id := rand.Int() % 1000
-		err := d.connect.QueryRow(ctx, "select * from Users u where u.id = $1", id).Scan(u)
+		err := d.connect.QueryRow(ctx, "select name from Users u where u.id = $1", id).Scan(&u)
 		if err != nil {
 			fmt.Println("Error occured while making request")
 			return
 		}
-		fmt.Printf("%v", u)
+		fmt.Printf("%s", u)
 	}
 }
 

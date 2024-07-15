@@ -113,7 +113,7 @@ func SleepHandler(cpuPayload, ioPayload SleepPayload, db, cache StoragePayload) 
 		}
 
 		// pk DB
-		if bdReqCount := r.URL.Query().Get("bp_pk"); bdReqCount != "" {
+		if bdReqCount := r.URL.Query().Get("bd_pk"); bdReqCount != "" {
 			reqCount, err := strconv.ParseInt(bdReqCount, 10, 32)
 			if err != nil {
 				JSONError(w, err, http.StatusBadRequest)

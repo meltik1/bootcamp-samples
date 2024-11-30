@@ -37,12 +37,19 @@ func main() {
 
 	ctx := context.Background()
 
-	err := godotenv.Load()
+	err := godotenv.Load("/Users/nszuev/GolandProjects/bootcamp-samples/.env.paas")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	conn, err := pgx.Connect(ctx, os.Getenv("POSTGRES_URL"))
+	conn, err := pgx.Connect(ctx, fmt.Sprintf(
+		"postgresql://%s:%s@%s:%s/%s",
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGDATABASE"),
+	))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
@@ -51,8 +58,8 @@ func main() {
 	database := storage.New(conn)
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     os.Getenv("REDIS_URL"),
-		Username: os.Getenv("REDIS_USER"),
+		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+		Username: os.Getenv("REDIS_LOGIN"),
 		Password: os.Getenv("REDIS_PASSWORD"), // no password set
 		DB:       0,                           // use default DB
 	})
@@ -75,7 +82,6 @@ func main() {
 	// payload
 	cpuSleep := payload.NewGetrusagePayload()
 	ioSleep := payload.NewIOPayload()
-	http.HandleFunc("/payload", handlers.SleepHandler(cpuSleep, ioSleep, database, cache))
 	http.HandleFunc("/init", handlers.InitDBHandler(database, cache))
 
 	addr := fmt.Sprintf("%s:%d", host, port)

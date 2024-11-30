@@ -2,6 +2,7 @@ package Cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 
@@ -37,5 +38,12 @@ func (cache Cache) Request(ctx context.Context, count int) {
 		}
 		fmt.Printf("%s", res)
 	}
+}
 
+func (cache Cache) Hash(ctx context.Context, smth string) error {
+	set := cache.rd.HSet(ctx, "LOL", smth)
+	if set.Err() != nil {
+		return errors.New("Error in hashtale")
+	}
+	return nil
 }

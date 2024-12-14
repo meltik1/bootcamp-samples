@@ -1,0 +1,4 @@
+.env.paas
+.env.override
+.helm_tmp
+.Dockerfile.migrations

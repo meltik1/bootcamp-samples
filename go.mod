@@ -1,4 +1,4 @@
-module github.com/devhands-io/bootcamp-samples/golang/vanilla
+module github.com/meltik/study
 
 go 1.18
 

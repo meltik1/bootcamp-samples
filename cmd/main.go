@@ -13,10 +13,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/devhands-io/bootcamp-samples/golang/vanilla/Cache"
-	"github.com/devhands-io/bootcamp-samples/golang/vanilla/handlers"
-	"github.com/devhands-io/bootcamp-samples/golang/vanilla/payload"
-	"github.com/devhands-io/bootcamp-samples/golang/vanilla/storage"
+	"github.com/meltik/study/internal/infra/cache"
+	"github.com/meltik/study/internal/infra/handlers/init"
+	"github.com/meltik/study/internal/infra/storage"
 )
 
 var (
@@ -69,20 +68,12 @@ func main() {
 		return
 	}
 
-	cache := Cache.New(rdb)
+	cache := cache.New(rdb)
 
 	runtime.GOMAXPROCS(2 * runtime.NumCPU())
 
 	flag.Parse()
-
-	// dummy handlers
-	http.HandleFunc("/", handlers.Ok)
-	http.HandleFunc("/hello", handlers.Hello)
-
-	// payload
-	cpuSleep := payload.NewGetrusagePayload()
-	ioSleep := payload.NewIOPayload()
-	http.HandleFunc("/init", handlers.InitDBHandler(database, cache))
+	http.HandleFunc("/init", init.InitDBHandler(database, cache))
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	fmt.Println("serving at " + addr)

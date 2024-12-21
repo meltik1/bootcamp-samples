@@ -14,7 +14,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/meltik/study/internal/infra/cache"
-	"github.com/meltik/study/internal/infra/handlers/init"
+	"github.com/meltik/study/internal/infra/handlers/dbInit"
 	"github.com/meltik/study/internal/infra/storage"
 )
 
@@ -36,7 +36,7 @@ func main() {
 
 	ctx := context.Background()
 
-	err := godotenv.Load("/Users/nszuev/GolandProjects/bootcamp-samples/.env.paas")
+	err := godotenv.Load("/Users/nszuev/GolandProjects/bootcamp-samples/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -73,7 +73,7 @@ func main() {
 	runtime.GOMAXPROCS(2 * runtime.NumCPU())
 
 	flag.Parse()
-	http.HandleFunc("/init", init.InitDBHandler(database, cache))
+	http.HandleFunc("/init", dbInit.InitDBHandler(database, cache))
 
 	addr := fmt.Sprintf("%s:%d", host, port)
 	fmt.Println("serving at " + addr)
